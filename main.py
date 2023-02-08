@@ -22,7 +22,7 @@ def get_subs():
         # 0 - Фамилия, 1 - должность, 2 - номер
         if num[2].value and num[0].value and len(str(num[2].value)) == 7:
             # print(f'{num[2].row} {num[2].value}')
-            if sheet_ranges.cell(row=num[0].row + 1, column=1).value:
+            if sheet_ranges.cell(row=num[0].row + 1, column=1).value and sheet_ranges.cell(row=num[0].row, column=1).font.bold == True:
                 io_cell = sheet_ranges.cell(row=num[0].row + 1, column=1).value
                 family = num[0].value
                 name = io_cell[0:1] + "."
