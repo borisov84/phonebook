@@ -59,7 +59,7 @@ def export_phonebook():
                     etree.SubElement(menu, "Item", Name=i[1], Phone1=i[2].replace("-", ""))
 
     et = etree.ElementTree(root)
-    et.write('output.xml', pretty_print=True, encoding='utf-8', xml_declaration=True)
+    et.write('output_yealink.xml', pretty_print=True, encoding='utf-8', xml_declaration=True)
 
     # with open("phnbk.xml", "w") as xml_file:
     #     xml_file.write(etree.tostring(root, pretty_print=True))
