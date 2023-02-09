@@ -86,7 +86,7 @@ def get_subs():
                 full_fio = family.strip() + " " + name + otch
                 # print(f'{filial} {num[0].value} {name}{otch} {num[2].value}')
                 subscribers.append((filial, full_fio, num[2].value.strip()))
-    print(len(subscribers))
+    # print(len(subscribers))
 
 
 def export_phonebook_yealink():
@@ -105,6 +105,9 @@ def export_phonebook_yealink():
     et = etree.ElementTree(root)
     et.write('output_aup.xml', pretty_print=True, encoding='utf-8', xml_declaration=True)
 
+
+def export_phonebook_eltex():
+    pass
 
 if __name__ == '__main__':
     get_deps_row()
