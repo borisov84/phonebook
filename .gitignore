@@ -1,5 +1,4 @@
 # output files
-output.xml
-phnbk.xml
+*.xml
 # source file
 справка.xlsx
