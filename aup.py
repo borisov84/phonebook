@@ -89,7 +89,7 @@ def get_subs():
     print(len(subscribers))
 
 
-def export_phonebook():
+def export_phonebook_yealink():
     root = etree.Element("YealinkIPPhoneBook")
     title = etree.SubElement(root, "Title")
     title.text = "Yealink"
@@ -109,4 +109,4 @@ def export_phonebook():
 if __name__ == '__main__':
     get_deps_row()
     get_subs()
-    export_phonebook()
+    export_phonebook_yealink()

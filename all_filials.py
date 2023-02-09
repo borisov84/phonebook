@@ -85,7 +85,7 @@ def test():
     print(fil)
 
 
-def export_phonebook():
+def export_phonebook_yealink():
     root = etree.Element("YealinkIPPhoneBook")
     title = etree.SubElement(root, "Title")
     title.text = "Yealink"
@@ -111,4 +111,4 @@ if __name__ == '__main__':
     get_subs()
     # print(subscribers)
     # test()
-    export_phonebook()
+    export_phonebook_yealink()
