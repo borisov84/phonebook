@@ -13,7 +13,8 @@ filial_rows = []
 filial_ranges = []
 filial_range = []
 subscribers = []
-us_normal = []
+filial_normal = []
+output_file = deps.split('_')[0] + '.xml'
 
 
 def get_departments_names():
@@ -30,9 +31,9 @@ def get_departments_names():
 
 
 def get_normal_names():
-    global us_normal
+    global filial_normal
     with open(deps_normal, 'r', encoding='utf-8') as us_nor:
-        us_normal = us_nor.read().splitlines()
+        filial_normal = us_nor.read().splitlines()
     us_nor.close()
 
 
@@ -68,7 +69,7 @@ def get_subs():
                 otch = io_cell[io_cell.find(" ") + 1:io_cell.find(" ") + 2] + "."
                 for ind, filial_range in enumerate(filial_ranges):
                     if filial_range[0] < num[0].row < filial_range[1]:
-                        filial = us_normal[ind]
+                        filial = filial_normal[ind]
                 full_fio = family.strip() + " " + name + otch
                 # print(f'{filial} {num[0].value} {name}{otch} {num[2].value}')
                 subscribers.append((filial, full_fio, num[2].value.strip()))
@@ -89,7 +90,31 @@ def export_yealink():
                     etree.SubElement(menu, "Item", Name=i[1], Phone1=i[2].replace("-", ""))
 
     et = etree.ElementTree(root)
-    et.write('output_us.xml', pretty_print=True, encoding='utf-8', xml_declaration=True)
+    et.write(output_file, pretty_print=True, encoding='utf-8', xml_declaration=True)
+
+
+def export_eltex():
+    root = etree.Element('EltexIPPhoneDirectory')
+    title = etree.SubElement(root, 'Title')
+    title.text = 'EltexPhones'
+    prompt = etree.SubElement(root, 'Prompt')
+    prompt.text = 'Prompt'
+    gr_list = etree.SubElement(root, 'Grouplist')
+    deps = []
+    for subscriber in subscribers:
+        if subscriber[0] not in deps:
+            deps.append(subscriber[0])
+            etree.SubElement(gr_list, 'Group', name=subscriber[0].replace('\n', ''))
+    for subscriber in subscribers:
+        dir_entry = etree.SubElement(root, 'DirectoryEntry')
+        name = etree.SubElement(dir_entry, "Name")
+        name.text = subscriber[1]
+        telephone = etree.SubElement(dir_entry, 'Telephone')
+        telephone.text = subscriber[2].replace('-', '')
+        grp = etree.SubElement(dir_entry, 'Group')
+        grp.text = subscriber[0]
+    et = etree.ElementTree(root)
+    et.write('eltex.xml', pretty_print=True, encoding = 'utf-8', xml_declaration=True)
 
 
 if __name__ == '__main__':
@@ -98,3 +123,4 @@ if __name__ == '__main__':
     get_filial_rows()
     get_subs()
     export_yealink()
+    export_eltex()
