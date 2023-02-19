@@ -2,3 +2,4 @@
 *.xml
 # source file
 *.xlsx
+.txt
