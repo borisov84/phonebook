@@ -37,6 +37,10 @@ filials_normal = ['УОВОФ', 'ЮУМТСиК', 'ЮУТТиСТ', 'ЮУАВР'
 filial_rows = []
 filial_ranges = []
 subscribers = []
+with open('allowed_deps.txt', 'r', encoding='utf-8') as al_deps:
+    allowed_deps = al_deps.read().splitlines()
+al_deps.close()
+# print(f'Филиалов: {len(allowed_deps)}')
 
 
 def get_departments_rows():
@@ -48,16 +52,14 @@ def get_departments_rows():
     for index, rng in enumerate(filial_rows):
         if index + 1 < len(filial_rows):
             filial_ranges.append([rng, filial_rows[index + 1] - 1])
-    print(f'Найдено {len(filial_ranges)} диапазонов для {len(filials)} филиалов')
+    # print(f'Найдено {len(filial_ranges)} диапазонов для {len(filials)} филиалов')
     # print(filial_rows)
 
 
 def get_subs():
     filial = ""
     for num in sheet_ranges.iter_rows(min_row=9, max_col=3, max_row=max_row):
-        # print(num[2].value)
         # 0 - Фамилия, 1 - должность, 2 - номер
-        # print(f'{num[2].value}  {type(num[2].value)}')
         if num[2].value and num[0].value and (len(str(num[2].value).strip()) == 7 or
                                               ((len(str(num[2].value).strip()) == 6) and str(
                                                   num[2].value[2:3] == "-"))):
@@ -71,18 +73,7 @@ def get_subs():
                     if filial_range[0] < num[0].row < filial_range[1]:
                         filial = filials_normal[ind]
                 full_fio = family.strip() + " " + name + otch
-                # print(f'{filial} {num[0].value} {name}{otch} {num[2].value}')
                 subscribers.append((filial, full_fio, num[2].value.strip()))
-    # print(subscribers)
-
-
-def test():
-    fil = []
-    for subscriber in subscribers:
-        if subscriber[0] not in fil:
-            # print(subscriber[0])
-            fil.append(subscriber[0])
-    print(fil)
 
 
 def export_phonebook_yealink():
@@ -91,24 +82,44 @@ def export_phonebook_yealink():
     title.text = "Yealink"
     departments = []
     for subscriber in subscribers:
-        if subscriber[0] not in departments:
-            departments.append(subscriber[0])
-            menu = etree.SubElement(root, "Menu", Name=subscriber[0].replace('\n', ""))
-            for i in subscribers:
-                if i[0] == subscriber[0]:
-                    etree.SubElement(menu, "Item", Name=i[1], Phone1=i[2].replace("-", ""))
-
+        if subscriber[0] in allowed_deps:
+            if subscriber[0] not in departments:
+                departments.append(subscriber[0])
+                menu = etree.SubElement(root, "Menu", Name=subscriber[0].replace('\n', ""))
+                for i in subscribers:
+                    if i[0] == subscriber[0]:
+                        etree.SubElement(menu, "Unit", Name=i[1], Phone1=i[2].replace("-", ""))
     et = etree.ElementTree(root)
-    et.write('output_yealink_2.xml', pretty_print=True, encoding='utf-8', xml_declaration=True)
+    et.write('yug_fil.xml', pretty_print=True, encoding='utf-8', xml_declaration=True)
 
-    # with open("phnbk.xml", "w") as xml_file:
-    #     xml_file.write(etree.tostring(root, pretty_print=True))
-    # print(etree.tostring(root, pretty_print=True))
+def export_phonebook_eltex():
+    root = etree.Element('EltexIPPhoneDirectory')
+    title = etree.SubElement(root, 'Title')
+    title.text = 'EltexPhones'
+    prompt = etree.SubElement(root, 'Prompt')
+    prompt.text = 'Prompt'
+    gr_list = etree.SubElement(root, 'Grouplist')
+    deps = []
+    for subscriber in subscribers:
+        if subscriber[0] in allowed_deps:
+            if subscriber[0] not in deps:
+                deps.append(subscriber[0])
+                etree.SubElement(gr_list, 'Group', name=subscriber[0].replace('\n', ''))
+    for subscriber in subscribers:
+        if subscriber[0] in allowed_deps:
+            dir_entry = etree.SubElement(root, 'DirectoryEntry')
+            name = etree.SubElement(dir_entry, "Name")
+            name.text = subscriber[1]
+            telephone = etree.SubElement(dir_entry, 'Telephone')
+            telephone.text = subscriber[2].replace('-', '')
+            grp = etree.SubElement(dir_entry, 'Group')
+            grp.text = subscriber[0]
+    et = etree.ElementTree(root)
+    et.write('yug_fil_eltex.xml', pretty_print=True, encoding = 'utf-8', xml_declaration=True)
 
 
 if __name__ == '__main__':
     get_departments_rows()
     get_subs()
-    # print(subscribers)
-    # test()
     export_phonebook_yealink()
+    export_phonebook_eltex()
